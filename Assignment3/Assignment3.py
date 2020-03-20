@@ -87,3 +87,76 @@ for i in range(0,len(tokens)-2):
 
 perplexity = total**Decimal(-1*(1/(len(tokens)-1)))
 print(perplexity)
+
+######################## Part 2(A) ###################################################################
+
+#Prepare Variables
+letters = ['h','e','l','l','o']
+index_to_letter = {
+						0 : "h",
+						1 : "e",
+						2 : "l",
+						3 : "o"		
+					}
+
+embedding = OrderedDict()
+embedding["h"] = np.array([
+								[1],
+								[0],
+								[0],
+								[0]
+						])
+
+embedding["e"] = np.array([
+								[0],
+								[1],
+								[0],
+								[0]
+						])
+
+embedding["l"] = np.array([
+								[0],
+								[0],
+								[1],
+								[0]
+						])
+
+embedding["o"] = np.array([
+								[0],
+								[0],
+								[0],
+								[1]
+						])
+
+A = np.array([
+				[1,-1,-0.5,0.5],
+				[1,1,-0.5,-1]
+			])
+
+B = np.array([
+				[1,1],
+				[0.5,1],
+				[-1,0],
+				[0,-0.5]
+			])
+
+R = np.array([
+				[1,0],
+				[0,1]
+			])
+
+H = np.array([
+				[0],
+				[0]
+			])
+
+#Deduce
+for letter in letters:
+	#print(embedding[v])
+	print("H: ",H)
+	H = np.tanh( np.matmul(R,H) + np.matmul(A,embedding[letter]) )
+	Y = np.matmul(B,H)
+	#print("Y: ",Y)
+	print("Deduction ",index_to_letter[np.argmax(Y, axis = 0)[0]])
+	
+####################### Part2(B) #############################################
