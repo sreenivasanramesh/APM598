@@ -160,3 +160,81 @@ for letter in letters:
 	print("Deduction ",index_to_letter[np.argmax(Y, axis = 0)[0]])
 	
 ####################### Part2(B) #############################################
+
+
+
+#############################################Part 3(b) ###############################################
+y_diff = list()
+pertubations = np.array([np.float32(10e-4),np.float32(10e-5),np.float32(10e-6),np.float32(10e-7),np.float32(10e-8),np.float32(10e-9)])
+#print(np.log(pertubations))
+
+def plot(pertubations,y_diff):
+	plt.plot(pertubations,y_diff)
+	plt.xlabel("Log(Pertubation)")
+	plt.ylabel("Log(|| y - yp ||)")
+	plt.show()
+
+def get_2_norm_diff(y,yp):
+	diff = y - yp
+	#print(diff)
+	return LA.norm(diff,2)
+
+
+def getYt(x,pertubation):
+
+	A = np.array([
+					[1,0],
+					[0,1]
+				])
+
+	B = np.array([
+					[1,0],
+					[0,1]
+				])
+
+	R = np.array([
+					[0.5,-1],
+					[-1,0.5]
+				])
+
+	H = np.array([
+					[0],
+					[0]
+				])
+
+	timesteps = 30
+
+	x[0] = x[0] + pertubation
+	x[1] = x[1] - pertubation
+
+	for i in range(0,timesteps):
+		if i == 0:
+			H = np.tanh( np.matmul(R,H) + np.matmul(A,x) ) 
+			continue
+		H = np.tanh( np.matmul(R,H) ) 
+
+	
+	return ( np.matmul(B,H) )
+
+
+yt = getYt([0,0],0)
+#print(yt)
+for pertubation in pertubations:
+	y_diff.append(get_2_norm_diff(yt,getYt([0,0],pertubation)))
+
+#print(np.log(np.array(y_diff)))
+
+plot(np.log(pertubations),np.log(np.array(y_diff)))
+
+
+################################Part 3(C)####################################################################
+y_diff = list()
+
+yt = getYt([2,1],0.1)
+#print(yt)
+for pertubation in pertubations:
+	y_diff.append(get_2_norm_diff(yt,getYt([2,1],pertubation)))
+
+#print(np.log(np.array(y_diff)))
+
+plot(np.log(pertubations),np.log(np.array(y_diff)))
