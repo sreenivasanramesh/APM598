@@ -45,7 +45,21 @@ min_len = 8
 top_words = 5
 
 #Pick top 5 highest frequency words with length of at least 8  
-print(list(islice(sorted({k: v for i in range(min_len,len(nltk.ConditionalFreqDist((len(word), word) for word in tokens))+1) for k, v in nltk.ConditionalFreqDist((len(word), word) for word in tokens)[i].items()}.items(), key=operator.itemgetter(1),reverse=True),top_words)))
+#print(list(islice(sorted({k: v for i in range(min_len,len(nltk.ConditionalFreqDist((len(word), word) for word in tokens))+1) for k, v in nltk.ConditionalFreqDist((len(word), word) for word in tokens)[i].items()}.items(), key=operator.itemgetter(1),reverse=True),top_words)))
+
+#frequency table of all worlds of all lengths
+master_freq_table = nltk.ConditionalFreqDist((len(word), word) for word in tokens)
+
+# frequency table of all words of min length
+partial_freq_table = dict()
+for i in range(min_len,len(master_freq_table)+1):
+	partial_freq_table.update(master_freq_table[i])
+
+#sort in decending order of frequency
+sorted_partial_list = sorted(partial_freq_table.items(),key=operator.itemgetter(1),reverse=True)
+
+#pick top words
+print(list(islice(sorted_partial_list,top_words)))
 
 ######################## Part 1(c) ################################################################
 
