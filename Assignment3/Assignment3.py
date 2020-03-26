@@ -1,4 +1,3 @@
-import numpy as np 
 import nltk 
 from nltk.tokenize import sent_tokenize, word_tokenize
 from nltk.tokenize import RegexpTokenizer
@@ -7,6 +6,16 @@ from itertools import islice
 from nltk.util import ngrams
 import collections
 from decimal import *
+import numpy as np
+from collections import OrderedDict
+from keras.models import Sequential
+from keras.layers import Embedding
+from keras.layers import SimpleRNN
+from keras.layers import Dense
+import tensorflow as tf
+from numpy import linalg as LA
+import matplotlib.pyplot as plt
+
 
 #Check if you have this package for tokenizer to work - downloads if it doesnt exist
 nltk.download('punkt')
@@ -25,7 +34,9 @@ tokens = tokenizer.tokenize(corpus)
 
 #Counts of words and unique words in corpus
 word_count = len(tokens)
+print("Total Words ",word_count)
 unique_word_count = len(set(tokens))
+print("Unique Words ",unique_word_count)
 
 
 ######################### Part 1(b) ###############################################################
@@ -54,13 +65,8 @@ def probability(x1,x2):
 		numerator = bigram_freq[(x1,x2)]
 
 	except:
-
-		try:
-			numerator = bigram_freq[(x2,x1)]
-
-		except:
-			print("Bigram does not exist")
-			return None
+		print("Bigram does not exist")
+		return None
 
 	try:
 		denominator = unigram_freq[(x1,)]
@@ -73,21 +79,25 @@ def probability(x1,x2):
 
 ######################## Part 1(D) ###################################################################
 
+#Have to use Decimal object as if we use float, python rounds it to zero as the value of 
+#total becomes very small as we multiply small probability values in the for loop 
+
 total = Decimal(1)
 
 print(bigram_freq[('and','said')])
 print(unigram_freq[('and',)])
 
-
 for i in range(0,len(tokens)-2): 
 	total = total*Decimal(probability(tokens[i],tokens[i+1]))
-	#print(total)
 	
-
-
 perplexity = total**Decimal(-1*(1/(len(tokens)-1)))
 print(perplexity)
 
+
+
+
+'''
+'''
 ######################## Part 2(A) ###################################################################
 
 #Prepare Variables
@@ -153,16 +163,18 @@ H = np.array([
 #Deduce
 for letter in letters:
 	#print(embedding[v])
-	print("H: ",H)
+	#print("H: ",H)
 	H = np.tanh( np.matmul(R,H) + np.matmul(A,embedding[letter]) )
 	Y = np.matmul(B,H)
 	#print("Y: ",Y)
 	print("Deduction ",index_to_letter[np.argmax(Y, axis = 0)[0]])
-	
+
 ####################### Part2(B) #############################################
 
 
 
+
+ 
 #############################################Part 3(b) ###############################################
 y_diff = list()
 pertubations = np.array([np.float32(10e-4),np.float32(10e-5),np.float32(10e-6),np.float32(10e-7),np.float32(10e-8),np.float32(10e-9)])
@@ -175,6 +187,7 @@ def plot(pertubations,y_diff):
 	plt.show()
 
 def get_2_norm_diff(y,yp):
+	#print(y,yp)
 	diff = y - yp
 	#print(diff)
 	return LA.norm(diff,2)
@@ -204,10 +217,11 @@ def getYt(x,pertubation):
 
 	timesteps = 30
 
-	x[0] = x[0] + pertubation
-	x[1] = x[1] - pertubation
+	x[0][0] = x[0][0] + pertubation
+	x[1][0] = x[1][0] - pertubation
 
 	for i in range(0,timesteps):
+		#print(H)
 		if i == 0:
 			H = np.tanh( np.matmul(R,H) + np.matmul(A,x) ) 
 			continue
@@ -217,24 +231,35 @@ def getYt(x,pertubation):
 	return ( np.matmul(B,H) )
 
 
-yt = getYt([0,0],0)
-#print(yt)
+yt = getYt([[0],[0]],0)
+
 for pertubation in pertubations:
-	y_diff.append(get_2_norm_diff(yt,getYt([0,0],pertubation)))
+	y_diff.append(get_2_norm_diff(yt,getYt([[0],[0]],pertubation)))
 
 #print(np.log(np.array(y_diff)))
-
-plot(np.log(pertubations),np.log(np.array(y_diff)))
+print("hello")
+print((pertubations))
+print("bye")
+print(y_diff)
+plot(pertubations,np.array(y_diff))
 
 
 ################################Part 3(C)####################################################################
 y_diff = list()
 
-yt = getYt([2,1],0.1)
+yt = getYt([[2],[1]],0)
 #print(yt)
 for pertubation in pertubations:
-	y_diff.append(get_2_norm_diff(yt,getYt([2,1],pertubation)))
+	y_diff.append(get_2_norm_diff(yt,getYt([[2],[1]],pertubation)))
 
-#print(np.log(np.array(y_diff)))
+
+print("hello")
+print((pertubations))
+print("bye")
+print(y_diff)
+plot(pertubations,np.array(y_diff))
+
+#print(np.log(np.float32(np.array(y_diff))))
 
 plot(np.log(pertubations),np.log(np.array(y_diff)))
+
